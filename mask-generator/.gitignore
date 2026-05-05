@@ -1,0 +1,40 @@
+# ==========
+# Python
+# ==========
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.python-version
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+
+# ==========
+# OS / IDE / tooling
+# ==========
+.DS_Store
+.vscode/
+.idea/
+.claude/
+
+# ==========
+# Data, trained models, runtime outputs (heavy / regeneratable)
+# ==========
+data/
+models/
+outputs/
+logs/
+*.pth
+*.onnx
+*.pkl
+*.csv
+*.h5
+*.tflite
+
+# ==========
+# Unity project — local tool only, not pushed to team repo.
+# Re-download the zip from the Mask Generator PDF if needed.
+# ==========
+unity-source/

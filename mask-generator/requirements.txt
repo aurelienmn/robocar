@@ -1,0 +1,27 @@
+numpy>=1.24,<2.0
+pandas>=2.0
+matplotlib>=3.7
+opencv-python>=4.8
+pillow>=10.0
+scikit-learn>=1.3
+tqdm>=4.66
+pyyaml>=6.0
+
+# Notebooks / EDA
+jupyter>=1.0
+ipykernel>=6.25
+
+# Deep learning (PyTorch with Apple Silicon MPS support)
+torch>=2.2
+torchvision>=0.17
+
+# Pretrained segmentation models (UNet + MobileNetV2/ResNet/EfficientNet encoders)
+segmentation-models-pytorch>=0.3
+
+# Augmentation + training tooling
+albumentations>=1.4
+tensorboard>=2.16
+
+# ONNX export for quantization (mentioned in PDF as a goal for Jetson Nano)
+onnx>=1.15
+onnxruntime>=1.17

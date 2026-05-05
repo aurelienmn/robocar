@@ -1,0 +1,50 @@
+paths:
+  unity_root: unity-source/unitySimulator
+  data_raw: data/raw
+  data_processed: data/processed
+  models: models
+  logs: logs
+
+# Unity sim renders at 347x256 (W x H).
+# We pad to 352x256 because U-Net needs dimensions divisible by 32 (5 down-samples).
+image:
+  unity_width: 347
+  unity_height: 256
+  model_width: 352
+  model_height: 256
+
+# A pixel in the mask is considered "line" if all RGB channels are above this threshold.
+# Source masks have only 13 unique colors (mostly black with white lines), so 200 is safe.
+mask_threshold: 200
+
+train:
+  batch_size: 16
+  num_workers: 4
+  epochs: 60
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  val_split: 0.15
+  test_split: 0.10
+  seed: 42
+  early_stop_patience: 10
+  device: mps   # mps | cuda | cpu
+
+# type=smp_unet uses segmentation_models_pytorch — UNet decoder with a
+# pretrained ImageNet encoder. This is the default and gives +3-5 IoU points
+# vs training from scratch on a small dataset like ours (334 pairs).
+# type=custom_unet falls back to our hand-built UNet (no pretraining).
+model:
+  type: smp_unet                # smp_unet | custom_unet
+  in_channels: 3
+  out_channels: 1
+  encoder_name: mobilenet_v2    # smp_unet only — pure ReLU/Conv → quantization-friendly
+  encoder_weights: imagenet     # smp_unet only — pretrained weights
+  base_filters: 32              # custom_unet only — 16=tiny, 32=balanced, 64=heavy
+
+# These are FALLBACKKKK defaults only — at runtime the API reads n_rays/fov from
+# the team's ../config/agents.json (the same file the simulator uses), so the
+# output dimension always matches what the driving AI expects.
+# Origin: bottom-center of the mask (matches C# Raycast.cs).
+raycast:
+  default_n_rays: 50
+  default_fov: 180

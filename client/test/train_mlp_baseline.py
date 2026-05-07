@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import joblib
 
@@ -7,8 +9,9 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-DATA_PATH = r"C:\Projet\robocar\data\driving_data.csv"
-MODEL_PATH = r"C:\Projet\robocar\client\driving_model.pkl"
+ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_PATH = str(ROOT / "data" / "driving_data.csv")
+MODEL_PATH = str(ROOT / "client" / "driving_model.pkl")
 
 RAY_COUNT = 50
 

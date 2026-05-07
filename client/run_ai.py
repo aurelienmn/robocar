@@ -1,13 +1,23 @@
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import joblib
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.base_env import ActionTuple
 
-SIMULATOR_PATH = r"C:\Projet\robocar\simulator\RacingSimulator.exe"
-CONFIG_PATH = r"C:\Projet\robocar\config\agents.json"
+ROOT = Path(__file__).resolve().parent.parent
 
-model = joblib.load("steering_model.pkl")
+if sys.platform == "win32":
+    SIMULATOR_PATH = str(ROOT / "simulator" / "BuildWindows" / "RacingSimulator.exe")
+else:
+    SIMULATOR_PATH = str(ROOT / "simulator" / "BuildMac" / "RacingSimulator.app")
+
+CONFIG_PATH = str(ROOT / "config" / "agents.json")
+MODEL_PATH = str(ROOT / "client" / "steering_model.pkl")
+
+model = joblib.load(MODEL_PATH)
 
 env = UnityEnvironment(
     file_name=SIMULATOR_PATH,

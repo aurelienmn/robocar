@@ -1,9 +1,13 @@
-import pandas as pd
 import glob
 import os
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Dossier où sont tes fichiers lap
-DATA_DIR = r"C:\Projet\robocar\data"
+DATA_DIR = str(ROOT / "data")
 
 # Fichier de sortie
 OUTPUT_FILE = os.path.join(DATA_DIR, "driving_data.csv")

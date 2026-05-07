@@ -1,10 +1,14 @@
+from pathlib import Path
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error
 import joblib
 
-DATA_PATH = r"C:\Projet\robocar\data\driving_data.csv"
+ROOT = Path(__file__).resolve().parent.parent
+DATA_PATH = str(ROOT / "data" / "driving_data.csv")
+MODEL_PATH = str(ROOT / "client" / "steering_model.pkl")
 
 # 1. Charger les données
 df = pd.read_csv(DATA_PATH)
@@ -36,5 +40,5 @@ mse = mean_squared_error(y_test, preds)
 print("MSE:", mse)
 
 # 7. Sauvegarde
-joblib.dump(model, "steering_model.pkl")
+joblib.dump(model, MODEL_PATH)
 print("Modèle sauvegardé !")

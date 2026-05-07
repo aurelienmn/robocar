@@ -1,15 +1,25 @@
 import csv
 import os
+import sys
+from pathlib import Path
+
 import numpy as np
 import keyboard
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.base_env import ActionTuple
 
-SIMULATOR_PATH = r"C:\Projet\robocar\simulator\RacingSimulator.exe"
-CONFIG_PATH = r"C:\Projet\robocar\config\agents.json"
-DATA_PATH = r"C:\Projet\robocar\data\driving_data.csv"
+ROOT = Path(__file__).resolve().parent.parent
 
-os.makedirs(r"C:\Projet\robocar\data", exist_ok=True)
+if sys.platform == "win32":
+    SIMULATOR_PATH = str(ROOT / "simulator" / "BuildWindows" / "RacingSimulator.exe")
+else:
+    SIMULATOR_PATH = str(ROOT / "simulator" / "BuildMac" / "RacingSimulator.app")
+
+CONFIG_PATH = str(ROOT / "config" / "agents.json")
+DATA_DIR = str(ROOT / "data")
+DATA_PATH = str(ROOT / "data" / "driving_data.csv")
+
+os.makedirs(DATA_DIR, exist_ok=True)
 
 env = UnityEnvironment(
     file_name=SIMULATOR_PATH,

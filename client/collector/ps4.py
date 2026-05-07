@@ -1,4 +1,6 @@
+import argparse
 import csv
+import glob
 import os
 import sys
 from pathlib import Path
@@ -8,7 +10,12 @@ import pygame
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.base_env import ActionTuple
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--piste", type=int, choices=[1, 2, 3], required=True,
+                    help="Numéro de la piste (1, 2 ou 3)")
+args = parser.parse_args()
 
 if sys.platform == "win32":
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildWindows" / "RacingSimulator.exe")
@@ -16,12 +23,25 @@ else:
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildMac" / "RacingSimulator.app")
 
 CONFIG_PATH = str(ROOT / "config" / "agents.json")
-DATA_DIR = str(ROOT / "data")
-DATA_PATH = str(ROOT / "data" / "driving_data.csv")
+DATA_DIR = ROOT / "data" / f"Piste{args.piste}" / "run_manuel"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-os.makedirs(DATA_DIR, exist_ok=True)
 
-# Initialisation de pygame et de la manette
+def get_next_lap_path():
+    existing = glob.glob(str(DATA_DIR / "lap_*.csv"))
+    nums = []
+    for f in existing:
+        name = os.path.basename(f).replace("lap_", "").replace(".csv", "")
+        try:
+            nums.append(int(name.split("_")[0]))
+        except ValueError:
+            continue
+    next_num = max(nums) + 1 if nums else 1
+    return DATA_DIR / f"lap_{next_num:04d}.csv"
+
+
+LAP_PATH = get_next_lap_path()
+
 pygame.init()
 pygame.joystick.init()
 
@@ -41,14 +61,15 @@ env = UnityEnvironment(
 )
 
 header = [f"ray_{i}" for i in range(50)] + ["throttle", "steering"]
-file_exists = os.path.exists(DATA_PATH)
+
 
 def clamp(value, min_value=-1.0, max_value=1.0):
     return max(min_value, min(max_value, value))
 
+
 try:
     env.reset()
-    print("Connexion OK")
+    print(f"Connexion OK — enregistrement dans {LAP_PATH}")
     print("Contrôles manette PS4 :")
     print("- Stick gauche : direction")
     print("- R2 : avancer")
@@ -57,11 +78,9 @@ try:
 
     behavior_name = list(env.behavior_specs.keys())[0]
 
-    with open(DATA_PATH, mode="a", newline="", encoding="utf-8") as f:
+    with open(LAP_PATH, mode="w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-
-        if not file_exists:
-            writer.writerow(header)
+        writer.writerow(header)
 
         while True:
             pygame.event.pump()
@@ -74,17 +93,7 @@ try:
 
             obs = decision_steps.obs[0][0]
 
-            # Axe du stick gauche horizontal
-            # Généralement axis 0
             steering = joystick.get_axis(0)
-
-            # Gâchettes : la numérotation peut varier selon le pilote
-            # Souvent :
-            # L2 = axis 4
-            # R2 = axis 5
-            #
-            # Sur certaines configs, les gâchettes retournent une valeur de -1 à 1
-            # On la convertit en 0 à 1 avec : (axis + 1) / 2
 
             l2_raw = joystick.get_axis(4)
             r2_raw = joystick.get_axis(5)
@@ -92,10 +101,8 @@ try:
             l2 = (l2_raw + 1) / 2
             r2 = (r2_raw + 1) / 2
 
-            # throttle positif pour avancer, négatif pour reculer
             throttle = r2 - l2
 
-            # Petite zone morte pour éviter les micro-mouvements
             if abs(steering) < 0.08:
                 steering = 0.0
             if abs(throttle) < 0.08:
@@ -104,8 +111,6 @@ try:
             steering = clamp(steering)
             throttle = clamp(throttle)
 
-            # Bouton Options / Start
-            # Souvent bouton 9 ou 7 selon la config
             quit_pressed = False
             for btn in [7, 9]:
                 if btn < joystick.get_numbuttons() and joystick.get_button(btn):

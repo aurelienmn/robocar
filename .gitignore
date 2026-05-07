@@ -3,3 +3,5 @@
 .venv
 /simulator/
 /data/
+__pycache__/
+*.pyc

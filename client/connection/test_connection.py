@@ -3,7 +3,7 @@ from pathlib import Path
 
 from mlagents_envs.environment import UnityEnvironment
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 if sys.platform == "win32":
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildWindows" / "RacingSimulator.exe")

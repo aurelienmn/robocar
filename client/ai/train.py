@@ -10,8 +10,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_PATH = str(ROOT / "data" / "driving_data.csv")
-MODEL_PATH = str(ROOT / "client" / "driving_model.pkl")
+DATA_PATH = str(ROOT / "data" / "training_data.csv")
+MODEL_PATH = str(ROOT / "client" / "models" / "driving_model.pkl")
 
 RAY_COUNT = 50
 

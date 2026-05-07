@@ -15,7 +15,7 @@ else:
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildMac" / "RacingSimulator.app")
 
 CONFIG_PATH = str(ROOT / "config" / "agents.json")
-MODEL_PATH = str(ROOT / "client" / "driving_model.pkl")
+MODEL_PATH = str(ROOT / "client" / "models" / "driving_model.pkl")
 
 model = joblib.load(MODEL_PATH)
 

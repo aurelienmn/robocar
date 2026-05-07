@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
-INPUT = str(ROOT / "data" / "driving_data.csv")
-OUTPUT = str(ROOT / "data" / "driving_data_clean.csv")
+ROOT = Path(__file__).resolve().parent.parent.parent
+INPUT = str(ROOT / "data" / "training_data.csv")
+OUTPUT = str(ROOT / "data" / "training_data_clean.csv")
 
 df = pd.read_csv(INPUT)
 

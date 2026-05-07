@@ -1,4 +1,6 @@
+import argparse
 import csv
+import glob
 import os
 import sys
 from pathlib import Path
@@ -8,7 +10,12 @@ import keyboard
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.base_env import ActionTuple
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--piste", type=int, choices=[1, 2, 3], required=True,
+                    help="Numéro de la piste (1, 2 ou 3)")
+args = parser.parse_args()
 
 if sys.platform == "win32":
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildWindows" / "RacingSimulator.exe")
@@ -16,10 +23,24 @@ else:
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildMac" / "RacingSimulator.app")
 
 CONFIG_PATH = str(ROOT / "config" / "agents.json")
-DATA_DIR = str(ROOT / "data")
-DATA_PATH = str(ROOT / "data" / "driving_data.csv")
+DATA_DIR = ROOT / "data" / f"Piste{args.piste}" / "run_manuel"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-os.makedirs(DATA_DIR, exist_ok=True)
+
+def get_next_lap_path():
+    existing = glob.glob(str(DATA_DIR / "lap_*.csv"))
+    nums = []
+    for f in existing:
+        name = os.path.basename(f).replace("lap_", "").replace(".csv", "")
+        try:
+            nums.append(int(name.split("_")[0]))
+        except ValueError:
+            continue
+    next_num = max(nums) + 1 if nums else 1
+    return DATA_DIR / f"lap_{next_num:04d}.csv"
+
+
+LAP_PATH = get_next_lap_path()
 
 env = UnityEnvironment(
     file_name=SIMULATOR_PATH,
@@ -30,20 +51,16 @@ env = UnityEnvironment(
 
 header = [f"ray_{i}" for i in range(50)] + ["throttle", "steering"]
 
-file_exists = os.path.exists(DATA_PATH)
-
 try:
     env.reset()
-    print("Connexion OK")
+    print(f"Connexion OK — enregistrement dans {LAP_PATH}")
     print("Z = avancer | S = reculer | Q = gauche | D = droite | ESC = quitter")
 
     behavior_name = list(env.behavior_specs.keys())[0]
 
-    with open(DATA_PATH, mode="a", newline="", encoding="utf-8") as f:
+    with open(LAP_PATH, mode="w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-
-        if not file_exists:
-            writer.writerow(header)
+        writer.writerow(header)
 
         while True:
             decision_steps, _ = env.get_steps(behavior_name)
@@ -52,7 +69,7 @@ try:
                 env.step()
                 continue
 
-            obs = decision_steps.obs[0][0]  # shape (50,)
+            obs = decision_steps.obs[0][0]
 
             throttle = 0.0
             steering = 0.0

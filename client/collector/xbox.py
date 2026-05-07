@@ -1,3 +1,4 @@
+import argparse
 import csv
 import os
 import sys
@@ -9,7 +10,12 @@ import pygame
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.base_env import ActionTuple
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--piste", type=int, choices=[1, 2, 3], required=True,
+                    help="Numéro de la piste (1, 2 ou 3)")
+args = parser.parse_args()
 
 if sys.platform == "win32":
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildWindows" / "RacingSimulator.exe")
@@ -17,7 +23,7 @@ else:
     SIMULATOR_PATH = str(ROOT / "simulator" / "BuildMac" / "RacingSimulator.app")
 
 CONFIG_PATH = str(ROOT / "config" / "agents.json")
-DATA_DIR = str(ROOT / "data")
+DATA_DIR = str(ROOT / "data" / f"Piste{args.piste}" / "run_manuel")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
